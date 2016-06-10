@@ -9,6 +9,7 @@ import liquibase.database.Database;
 import liquibase.exception.SetupException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.exception.ValidationErrors;
+import liquibase.util.SqlPlusStatementsRemover;
 import liquibase.util.StreamUtil;
 import liquibase.util.StringUtils;
 
@@ -38,6 +39,7 @@ import liquibase.util.StringUtils;
 public class SQLFileChange extends AbstractSQLChange {
 
     private String path;
+    private Boolean stripSqlPlus;
     private Boolean relativeToChangelogFile;
 
     @Override
@@ -64,6 +66,20 @@ public class SQLFileChange extends AbstractSQLChange {
         path = fileName;
     }
 
+    @DatabaseChangeProperty(description = "Strips sql plus commands from the file")
+    public Boolean isStripSqlPlus() {
+        return stripSqlPlus;
+    }
+
+    /**
+     * Strips sql plus commands from the file
+     *
+     * @param stripSqlPlus Strips sql plus commands from the file
+     */
+    public void setStripSqlPlus(Boolean stripSqlPlus) {
+        this.stripSqlPlus = stripSqlPlus;
+    }
+    
     /**
      * The encoding of the file containing SQL statements
      *
@@ -146,6 +162,11 @@ public class SQLFileChange extends AbstractSQLChange {
                         content = parameters.expandExpressions(content, getChangeSet().getChangeLog());
                     }
                 }
+                
+                if(stripSqlPlus != null && stripSqlPlus){
+                    content = SqlPlusStatementsRemover.remove(content);
+                }
+                
                 return content;
             } catch (IOException e) {
                 throw new UnexpectedLiquibaseException(e);

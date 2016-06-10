@@ -779,7 +779,7 @@ public class XMLChangeLogSerializerTest {
 
         assertEquals(fileName, element.getAttribute("path"));
     }
-
+    
     @Test
     public void createNode_TagDatabaseChange() throws Exception {
         TagDatabaseChange refactoring = new TagDatabaseChange();
